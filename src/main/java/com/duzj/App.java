@@ -25,14 +25,17 @@ public class App
     public static void main( String[] args )
     {
         String gitName = "duzengjie";
+        String year = "2023";
+        String path = "/Users/duzengjie/IdeaProjects/demo-springboot";
+
         // 构建 Git 命令 --format:%h:%an %ad %s
         ProcessBuilder processBuilder = new ProcessBuilder("git", "log",
-                "--since=2023-01-01",
-                "--until=2023-12-31",
+                "--since="+year+"-01-01",
+                "--until="+year+"-12-31",
                 "--pretty=format:%an<>%ad<>%s",
                 "--date=format:%Y-%m-%d %H:%M:%S"
         );
-        processBuilder.directory(new File("/Users/duzengjie/IdeaProjects/demo-springboot"));
+        processBuilder.directory(new File(path));
         processBuilder.redirectErrorStream(true);
         System.out.println(String.join(" ", processBuilder.command()));
         // 执行命令
@@ -60,10 +63,10 @@ public class App
                 String countTotal = collect.get(name)+"";
                 BigDecimal percent = new BigDecimal(countTotal).divide(new BigDecimal(yearCountTotal), 2,RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
                 if(!name.equals(gitName)){
-                    System.out.println(String.format("%s在2023年本项目总共提交记录总数为%s 占比:%s", name, countTotal,percent+"%"));
+                    System.out.println(String.format("%s在%s年本项目总共提交记录总数为%s 占比:%s", name, year,countTotal,percent+"%"));
                 }else {
                     //todo 少了就说还需努力  多了就说你真棒
-                    System.out.println(String.format("%s(本人)在2023年本项目总共提交记录总数为%s 占比:%s", name, countTotal,percent+"%"));
+                    System.out.println(String.format("%s(本人)在%s年本项目总共提交记录总数为%s 占比:%s", name,year, countTotal,percent+"%"));
                 }
             }
             //logs.stream()
