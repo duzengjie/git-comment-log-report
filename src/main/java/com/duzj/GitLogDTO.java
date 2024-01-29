@@ -12,6 +12,15 @@ public class GitLogDTO {
 
     private String comment;
 
+    @Override
+    public String toString() {
+        return "GitLogDTO{" +
+                "name='" + name + '\'' +
+                ", createDate='" + createDate + '\'' +
+                ", comment='" + comment + '\'' +
+                '}';
+    }
+
     public GitLogDTO() {
     }
 

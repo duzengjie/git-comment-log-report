@@ -6,7 +6,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,6 +24,7 @@ public class App
 {
     public static void main( String[] args )
     {
+        String gitName = "duzengjie";
         // 构建 Git 命令 --format:%h:%an %ad %s
         ProcessBuilder processBuilder = new ProcessBuilder("git", "log",
                 "--since=2023-01-01",
@@ -39,7 +45,7 @@ public class App
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] split = line.split("<>");
-                System.out.println(line);
+                //System.out.println(line);
                 GitLogDTO gitLogDTO = new GitLogDTO();
                 gitLogDTO.setName(split[0]);
                 gitLogDTO.setCreateDate(split[1]);
@@ -53,8 +59,46 @@ public class App
             for (String name : collect.keySet()) {
                 String countTotal = collect.get(name)+"";
                 BigDecimal percent = new BigDecimal(countTotal).divide(new BigDecimal(yearCountTotal), 2,RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
-                System.out.println(String.format("%s在2023年本项目总共提交记录总数为%s 占比:%s", name, countTotal,percent+"%"));
+                if(!name.equals(gitName)){
+                    System.out.println(String.format("%s在2023年本项目总共提交记录总数为%s 占比:%s", name, countTotal,percent+"%"));
+                }else {
+                    //todo 少了就说还需努力  多了就说你真棒
+                    System.out.println(String.format("%s(本人)在2023年本项目总共提交记录总数为%s 占比:%s", name, countTotal,percent+"%"));
+                }
             }
+            //logs.stream()
+            Map<String, List<GitLogDTO>> groupedByName = logs.stream().collect(Collectors.groupingBy(GitLogDTO::getName));
+            List<GitLogDTO> gitLogOwn = groupedByName.get(gitName);
+
+            // 将日期字符串转换为 LocalDate 对象并按照日期分组
+            Map<LocalDate, List<GitLogDTO>> logsByDate = gitLogOwn.stream()
+                    .collect(Collectors.groupingBy(dto -> LocalDate.parse(dto.getCreateDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+            // 遍历每个日期的记录，找出每天最早的记录
+            List<GitLogDTO> minYear = new ArrayList<>();
+            List<GitLogDTO> maxYear = new ArrayList<>();
+            for (List<GitLogDTO> logsGitLogDTO : logsByDate.values()) {
+                GitLogDTO earliestLogMin = logsGitLogDTO.stream()
+                        .min(Comparator.comparing(log -> LocalDateTime.parse(log.getCreateDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+                        .orElse(null);
+                GitLogDTO earliestLogMax = logsGitLogDTO.stream()
+                        .max(Comparator.comparing(log -> LocalDateTime.parse(log.getCreateDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+                        .orElse(null);
+                minYear.add(earliestLogMin);
+                maxYear.add(earliestLogMax);
+            }
+
+            GitLogDTO gitLogDTOMin = minYear.stream()
+                    .min(Comparator.comparing(log -> LocalTime.parse(log.getCreateDate().substring(11), DateTimeFormatter.ofPattern("HH:mm:ss"))))
+                    .orElse(null);
+
+            GitLogDTO gitLogDTOMax = maxYear.stream()
+                    .max(Comparator.comparing(log -> LocalTime.parse(log.getCreateDate().substring(11), DateTimeFormatter.ofPattern("HH:mm:ss"))))
+                    .orElse(null);
+
+            System.out.println(String.format("你最早的一次代码提交是在 %s 内容为 %s",gitLogDTOMin.getCreateDate(),gitLogDTOMin.getComment()));
+            System.out.println(String.format("你最晚的一次代码提交是在 %s 内容为 %s",gitLogDTOMax.getCreateDate(),gitLogDTOMax.getComment()));
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
