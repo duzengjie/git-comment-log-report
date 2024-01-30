@@ -24,9 +24,13 @@ public class App
 {
     public static void main( String[] args )
     {
-        String gitName = "duzengjie";
-        String year = "2023";
-        String path = "/Users/duzengjie/IdeaProjects/demo-springboot";
+        String gitName = "疯狂的狮子li";
+        String year = "2021";
+        String path = "/Users/duzengjie/Desktop/RuoYi-Vue-Plus";
+
+        //String gitName = args[0];
+        //String year = args[1];
+        //String path = args[2];
 
         // 构建 Git 命令 --format:%h:%an %ad %s
         ProcessBuilder processBuilder = new ProcessBuilder("git", "log",
@@ -63,7 +67,7 @@ public class App
                 String countTotal = collect.get(name)+"";
                 BigDecimal percent = new BigDecimal(countTotal).divide(new BigDecimal(yearCountTotal), 2,RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
                 if(!name.equals(gitName)){
-                    System.out.println(String.format("%s在%s年本项目总共提交记录总数为%s 占比:%s", name, year,countTotal,percent+"%"));
+                    //System.out.println(String.format("%s在%s年本项目总共提交记录总数为%s 占比:%s", name, year,countTotal,percent+"%"));
                 }else {
                     //todo 少了就说还需努力  多了就说你真棒
                     System.out.println(String.format("%s(本人)在%s年本项目总共提交记录总数为%s 占比:%s", name,year, countTotal,percent+"%"));
