@@ -24,9 +24,9 @@ public class App
 {
     public static void main( String[] args )
     {
-        String gitName = "疯狂的狮子li";
-        String year = "2021";
-        String path = "/Users/duzengjie/Desktop/RuoYi-Vue-Plus";
+        String gitName = "我知道了嗯";
+        String year = "2024";
+        String path = "C:\\work\\backend\\git-comment-log-report";
 
         //String gitName = args[0];
         //String year = args[1];
@@ -52,7 +52,6 @@ public class App
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] split = line.split("<>");
-                //System.out.println(line);
                 GitLogDTO gitLogDTO = new GitLogDTO();
                 gitLogDTO.setName(split[0]);
                 gitLogDTO.setCreateDate(split[1]);
@@ -66,11 +65,9 @@ public class App
             for (String name : collect.keySet()) {
                 String countTotal = collect.get(name)+"";
                 BigDecimal percent = new BigDecimal(countTotal).divide(new BigDecimal(yearCountTotal), 2,RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
-                if(!name.equals(gitName)){
-                    //System.out.println(String.format("%s在%s年本项目总共提交记录总数为%s 占比:%s", name, year,countTotal,percent+"%"));
-                }else {
+                if(name.equals(gitName)){
                     //todo 少了就说还需努力  多了就说你真棒
-                    System.out.println(String.format("%s(本人)在%s年本项目总共提交记录总数为%s 占比:%s", name,year, countTotal,percent+"%"));
+                    System.out.println(String.format("你在%s年本项目总共提交记录总数为%s 占比:%s",year, countTotal,percent+"%"));
                 }
             }
             //logs.stream()
@@ -106,6 +103,8 @@ public class App
             System.out.println(String.format("你最早的一次代码提交是在 %s 内容为 %s",gitLogDTOMin.getCreateDate(),gitLogDTOMin.getComment()));
             System.out.println(String.format("你最晚的一次代码提交是在 %s 内容为 %s",gitLogDTOMax.getCreateDate(),gitLogDTOMax.getComment()));
 
+            //TODO 创建了几个新功能
+            //TODO 修复了几个bug
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
