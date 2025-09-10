@@ -22,6 +22,20 @@ import java.util.stream.Collectors;
  */
 public class App 
 {
+    /**
+     * Entry point that runs a git-log analysis for a single contributor over a specified year and prints summary statistics.
+     *
+     * <p>Runs a git command in the configured repository to collect commits between January 1 and December 31 of
+     * the target year, parses the output into GitLogDTO objects, prints total/project- and contributor-level counts
+     * and percentages, and reports the earliest and latest commit times (and messages) for the selected contributor.</p>
+     *
+     * <p>By default the method uses hard-coded values:
+     * gitName = "我知道了嗯", year = "2024", path = "C:\work\backend\git-comment-log-report".
+     * The commented lines show an alternative where these can be supplied via args[0..2].</p>
+     *
+     * @param args optional runtime arguments: args[0]=gitName, args[1]=year, args[2]=path (if provided, they override the defaults)
+     * @throws ArithmeticException this method contains intentional division-by-zero expressions which will throw immediately
+     */
     public static void main( String[] args )
     {
         int a = 1/0;
