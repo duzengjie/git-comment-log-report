@@ -24,7 +24,6 @@ public class App
 {
     public static void main( String[] args )
     {
-        int a = 1/0;
         String gitName = "我知道了嗯";
         String year = "2024";
         String path = "C:\\work\\backend\\git-comment-log-report";
