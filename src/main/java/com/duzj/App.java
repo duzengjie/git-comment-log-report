@@ -23,28 +23,21 @@ import java.util.stream.Collectors;
 public class App 
 {
     /**
-     * Entry point that collects and reports git commit statistics for a specified year and author.
+     * Entry point that gathers and reports per-author Git commit statistics for a given year.
      *
-     * <p>Runs a `git log` command in a configured repository directory, parses each commit line into
-     * GitLogDTO instances, computes per-author commit counts and percentages for the year, and for the
-     * target author identifies the earliest and latest commits per day and the overall earliest/latest
-     * commit times-of-day. Results are printed to standard output.</p>
+     * <p>Runs a `git log` command in the repository at the specified path to collect commits within the given
+     * year, parses each log line into GitLogDTO entries, computes totals and per-author percentages,
+     * and prints the target author's earliest and latest commit times and messages for that year.</p>
      *
-     * <p>Behavior notes and side effects:
-     * <ul>
-     *   <li>This method contains deliberate integer divisions by zero (`int a = 1/0;` and
-     *       `int b = 1/0;`) that will throw an {@link ArithmeticException} at runtime before any git
-     *       processing occurs.</li>
-     *   <li>If the git process I/O fails, an {@link IOException} is caught and rethrown as a
-     *       {@link RuntimeException}.</li>
-     *   <li>Reads from and writes to the filesystem/process (starts an external git process and reads
-     *       its stdout) and prints multiple lines to standard output.</li>
-     * </ul>
-     * </p>
+     * <p>Behavior notes:
+     * - By convention the program can accept three command-line arguments: {@code args[0]} = target author name,
+     *   {@code args[1]} = year (e.g., "2024"), {@code args[2]} = repository path. The current implementation uses
+     *   hard-coded values when arguments are not read.
+     * - The method prints the executed git command, overall commit counts, the target author's share, and the
+     *   target author's earliest/latest commit timestamps with their messages.</p>
      *
-     * @param args optional command-line arguments; when provided they can be used (via the commented
-     *             code paths) to supply [gitName, year, path], otherwise the method uses hardcoded
-     *             defaults embedded in the method body.
+     * @param args optional command-line arguments: [gitAuthorName, year, repositoryPath]
+     * @throws RuntimeException if an I/O error occurs while executing or reading the git process output
      */
     public static void main( String[] args )
     {
