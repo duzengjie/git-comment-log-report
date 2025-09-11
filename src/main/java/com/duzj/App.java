@@ -25,6 +25,91 @@ public class App
 
     public static void main( String[] args )
     {
+        String gitName = "我知道了嗯";
+        String year = "2024";
+        String path = "C:\\work\\backend\\git-comment-log-report";
+
+        //String gitName = args[0];
+        //String year = args[1];
+        //String path = args[2];
+
+        // 构建 Git 命令 --format:%h:%an %ad %s
+        ProcessBuilder processBuilder = new ProcessBuilder("git", "log",
+                "--since="+year+"-01-01",
+                "--until="+year+"-12-31",
+                "--pretty=format:%an<>%ad<>%s",
+                "--date=format:%Y-%m-%d %H:%M:%S"
+        );
+        processBuilder.directory(new File(path));
+        processBuilder.redirectErrorStream(true);
+        System.out.println(String.join(" ", processBuilder.command()));
+        // 执行命令
+        try {
+            List<GitLogDTO> logs = new ArrayList<GitLogDTO>();
+            Process process = processBuilder.start();
+
+            // 读取命令输出
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] split = line.split("<>");
+                GitLogDTO gitLogDTO = new GitLogDTO();
+                gitLogDTO.setName(split[0]);
+                gitLogDTO.setCreateDate(split[1]);
+                gitLogDTO.setComment(split[2]);
+                logs.add(gitLogDTO);
+            }
+
+            String yearCountTotal = logs.size()+"";
+            System.out.println(( String.format("2023年本项目总共提交记录总数为:%s", yearCountTotal)));
+            Map<String, Long> collect = logs.stream().collect(Collectors.groupingBy(GitLogDTO::getName, Collectors.counting()));
+            for (String name : collect.keySet()) {
+                String countTotal = collect.get(name)+"";
+                BigDecimal percent = new BigDecimal(countTotal).divide(new BigDecimal(yearCountTotal), 2,RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
+                if(name.equals(gitName)){
+                    //todo 少了就说还需努力  多了就说你真棒
+                    System.out.printf("你在%s年本项目总共提交记录总数为%s 占比:%s%n",year, countTotal,percent+"%");
+                }
+            }
+            //logs.stream()
+            Map<String, List<GitLogDTO>> groupedByName = logs.stream().collect(Collectors.groupingBy(GitLogDTO::getName));
+            List<GitLogDTO> gitLogOwn = groupedByName.get(gitName);
+
+            // 将日期字符串转换为 LocalDate 对象并按照日期分组
+            Map<LocalDate, List<GitLogDTO>> logsByDate = gitLogOwn.stream()
+                    .collect(Collectors.groupingBy(dto -> LocalDate.parse(dto.getCreateDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+
+            // 遍历每个日期的记录，找出每天最早的记录
+            List<GitLogDTO> minYear = new ArrayList<>();
+            List<GitLogDTO> maxYear = new ArrayList<>();
+            for (List<GitLogDTO> logsGitLogDTO : logsByDate.values()) {
+                GitLogDTO earliestLogMin = logsGitLogDTO.stream()
+                        .min(Comparator.comparing(log -> LocalDateTime.parse(log.getCreateDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+                        .orElse(null);
+                GitLogDTO earliestLogMax = logsGitLogDTO.stream()
+                        .max(Comparator.comparing(log -> LocalDateTime.parse(log.getCreateDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))))
+                        .orElse(null);
+                minYear.add(earliestLogMin);
+                maxYear.add(earliestLogMax);
+            }
+
+            GitLogDTO gitLogDTOMin = minYear.stream()
+                    .min(Comparator.comparing(log -> LocalTime.parse(log.getCreateDate().substring(11), DateTimeFormatter.ofPattern("HH:mm:ss"))))
+                    .orElse(null);
+
+            GitLogDTO gitLogDTOMax = maxYear.stream()
+                    .max(Comparator.comparing(log -> LocalTime.parse(log.getCreateDate().substring(11), DateTimeFormatter.ofPattern("HH:mm:ss"))))
+                    .orElse(null);
+
+            System.out.printf("你最早的一次代码提交是在 %s 内容为 %s%n",gitLogDTOMin.getCreateDate(),gitLogDTOMin.getComment());
+            System.out.printf("你最晚的一次代码提交是在 %s 内容为 %s%n",gitLogDTOMax.getCreateDate(),gitLogDTOMax.getComment());
+
+            //TODO 创建了几个新功能
+            //TODO 修复了几个bug
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 }
