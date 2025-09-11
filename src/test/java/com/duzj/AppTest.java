@@ -112,4 +112,75 @@ public class AppTest extends TestCase {
     public void testBaselineTruth() {
         assertTrue(true);
     }
+    /**
+     * Exact output verification: trimmed output equals "Hello World\!".
+     */
+    public void testMainPrintsExactHelloWorldTrimmed() {
+        App.main(new String[0]);
+        assertEquals("Hello World\!", normalizedOutput().trim());
+    }
+
+    /**
+     * Newline verification: output should end with a newline.
+     */
+    public void testOutputEndsWithNewline() {
+        App.main(new String[0]);
+        String out = normalizedOutput();
+        assertTrue("Output should end with a newline", out.endsWith("\n"));
+    }
+
+    /**
+     * Multiple invocations: two calls print the greeting twice.
+     */
+    public void testMultipleInvocationsPrintTwice() {
+        App.main(new String[0]);
+        App.main(new String[0]);
+        String out = normalizedOutput();
+        String needle = "Hello World\!";
+        int count = 0;
+        int idx = 0;
+        while ((idx = out.indexOf(needle, idx)) \!= -1) {
+            count++;
+            idx += needle.length();
+        }
+        assertEquals("Expected greeting to appear twice across two calls", 2, count);
+    }
+
+    /**
+     * Args with whitespace should still print the greeting.
+     */
+    public void testMainWithWhitespaceArgsStillPrints() {
+        App.main(new String[] { "", " " });
+        String out = normalizedOutput();
+        assertTrue("Expected output to contain 'Hello World\!'", out.contains("Hello World\!"));
+    }
+
+    /**
+     * Many args should not affect printing.
+     */
+    public void testMainWithManyArgsStillPrints() {
+        String[] many = new String[256];
+        for (int i = 0; i < many.length; i++) {
+            many[i] = "arg" + i;
+        }
+        App.main(many);
+        String out = normalizedOutput();
+        assertTrue("Expected output to contain 'Hello World\!'", out.contains("Hello World\!"));
+    }
+
+    /**
+     * API surface: App class is public.
+     */
+    public void testAppClassIsPublic() {
+        assertTrue("App class should be public", Modifier.isPublic(App.class.getModifiers()));
+    }
+
+    /**
+     * Constructor side effects: constructing App should not print.
+     */
+    public void testConstructorHasNoSideEffects() {
+        new App();
+        String out = normalizedOutput();
+        assertEquals("Constructing App should not print anything", "", out);
+    }
 }
